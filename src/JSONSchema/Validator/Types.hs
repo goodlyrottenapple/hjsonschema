@@ -2,7 +2,7 @@ module JSONSchema.Validator.Types where
 
 import           Import
 
-import           Data.Profunctor (Profunctor(..))
+-- import           Data.Profunctor (Profunctor(..))
 
 data Validator schema val err = Validator
     { _embedded :: val -> ([schema], [schema])
@@ -17,6 +17,11 @@ data Validator schema val err = Validator
     , _validate :: val -> Value -> [err]
     } deriving Functor
 
-instance Profunctor (Validator schema) where
-    lmap f (Validator a b) = Validator (lmap f a) (lmap f b)
-    rmap = fmap
+lmap :: (a -> b) ->  Validator s b c ->  Validator s a c 
+lmap f (Validator a b) = Validator (flip (.) f a) (flip (.) f b)
+
+rmap :: (b -> c) ->  Validator s a b -> Validator s a c 
+rmap = fmap
+
+dimap :: (a -> b) -> (c -> d) -> Validator s b c -> Validator s a d 
+dimap f g = lmap f . rmap g

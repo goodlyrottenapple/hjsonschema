@@ -15,50 +15,6 @@ import qualified Data.Vector as V
 -- * QuickCheck
 --------------------------------------------------
 
-arbitraryText :: Gen Text
-arbitraryText = T.pack <$> arbitrary
-
-arbitraryScientific :: Gen Scientific
-arbitraryScientific = (fromFloatDigits :: Double -> Scientific) <$> arbitrary
-
-arbitraryPositiveScientific :: Gen Scientific
-arbitraryPositiveScientific = (fromFloatDigits :: Double -> Scientific)
-                            . getPositive
-                          <$> arbitrary
-
-newtype ArbitraryValue
-    = ArbitraryValue { _unArbitraryValue :: Value }
-    deriving (Eq, Show)
-
-instance Arbitrary ArbitraryValue where
-    arbitrary = ArbitraryValue <$> sized f
-      where
-        f :: Int -> Gen Value
-        f n | n <= 1    = oneof nonRecursive
-            | otherwise = oneof $
-                  fmap (Array . V.fromList) (traverse (const (f (n `div` 10)))
-                    =<< (arbitrary :: Gen [()]))
-                : fmap (Object . HM.fromList) (traverse (const (g (n `div` 10)))
-                    =<< (arbitrary :: Gen [()]))
-                : nonRecursive
-
-        g :: Int -> Gen (Text, Value)
-        g n = (,) <$> arbitraryText <*> f n
-
-        nonRecursive :: [Gen Value]
-        nonRecursive =
-            [ pure Null
-            , Bool <$> arbitrary
-            , String <$> arbitraryText
-            , Number <$> arbitraryScientific
-            ]
-
-arbitraryHashMap :: Arbitrary a => Gen (HashMap Text a)
-arbitraryHashMap = HM.fromList . fmap (first T.pack) <$> arbitrary
-
-arbitrarySetOfText :: Gen (Set Text)
-arbitrarySetOfText = S.fromList . fmap T.pack <$> arbitrary
-
 newtype NonEmpty' a = NonEmpty' { _unNonEmpty' :: NonEmpty a }
 
 instance FromJSON a => FromJSON (NonEmpty' a) where
@@ -71,12 +27,6 @@ instance FromJSON a => FromJSON (NonEmpty' a) where
 instance ToJSON a => ToJSON (NonEmpty' a) where
     toJSON = toJSON . NE.toList . _unNonEmpty'
 
-instance Arbitrary a => Arbitrary (NonEmpty' a) where
-    arbitrary = do
-        xs <- arbitrary
-        case NE.nonEmpty xs of
-            Nothing -> NonEmpty' . pure <$> arbitrary
-            Just ne -> pure (NonEmpty' ne)
 
 --------------------------------------------------
 -- * allUniqueValues

@@ -4,7 +4,8 @@ import           Import
 
 import qualified Data.Text as T
 import           Data.Text.Encoding (encodeUtf8)
-import qualified Text.Regex.PCRE.Heavy as RE
+import qualified Text.Regex.PCRE as RE
+import           Text.Regex.PCRE.Text()
 
 --------------------------------------------------
 -- * maxLength
@@ -67,10 +68,8 @@ data PatternInvalid
 
 patternVal :: PatternValidator -> Text -> Maybe PatternInvalid
 patternVal a@(PatternValidator t) x =
-    case RE.compileM (encodeUtf8 t) mempty of
-        Left _   -> Just PatternNotRegex
-        Right re -> if input RE.=~ re
-                        then Nothing
-                        else Just (PatternInvalid a x)
+   if input RE.=~ (encodeUtf8 t)
+        then Nothing
+        else Just (PatternInvalid a x)
   where
     input = T.unpack x -- workaround for a bug in pcre-light

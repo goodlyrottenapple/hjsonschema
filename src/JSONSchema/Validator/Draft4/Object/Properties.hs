@@ -7,7 +7,8 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NE
 import           Data.Text.Encoding (encodeUtf8)
 import qualified JSONPointer as JP
-import qualified Text.Regex.PCRE.Heavy as RE
+import qualified Text.Regex.PCRE as RE
+import           Text.Regex.PCRE.Text()
 
 data PropertiesRelated schema = PropertiesRelated
     { _propProperties :: Maybe (HashMap Text schema)
@@ -42,10 +43,6 @@ instance ToJSON schema => ToJSON (AdditionalProperties schema) where
     toJSON (AdditionalPropertiesBool b)    = toJSON b
     toJSON (AdditionalPropertiesObject hm) = toJSON hm
 
-instance Arbitrary schema => Arbitrary (AdditionalProperties schema) where
-    arbitrary = oneof [ AdditionalPropertiesBool <$> arbitrary
-                      , AdditionalPropertiesObject <$> arbitrary
-                      ]
 
 -- | A glorified @type@ alias.
 newtype Regex
@@ -148,11 +145,9 @@ patternAndUnmatched f patPropertiesHm x =
             -> schema
             -> [(Regex, schema)]
         checkKey k acc r subSchema =
-            case RE.compileM (encodeUtf8 r) mempty of
-                Left _   -> acc
-                Right re -> if k RE.=~ re
-                                then (Regex r, subSchema) : acc
-                                else acc
+            if k RE.=~ (encodeUtf8 r)
+                then (Regex r, subSchema) : acc
+                else acc
 
     runMatches
         :: HashMap (Regex, JP.Key) [err]

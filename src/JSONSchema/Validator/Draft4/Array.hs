@@ -109,10 +109,6 @@ instance ToJSON schema => ToJSON (Items schema) where
     toJSON (ItemsObject hm)     = toJSON hm
     toJSON (ItemsArray schemas) = toJSON schemas
 
-instance Arbitrary schema => Arbitrary (Items schema) where
-    arbitrary = oneof [ ItemsObject <$> arbitrary
-                      , ItemsArray <$> arbitrary
-                      ]
 
 data ItemsRelatedInvalid err
     = IRInvalidItems      (ItemsInvalid err)
@@ -193,10 +189,6 @@ instance ToJSON schema => ToJSON (AdditionalItems schema) where
     toJSON (AdditionalBool b)    = toJSON b
     toJSON (AdditionalObject hm) = toJSON hm
 
-instance Arbitrary schema => Arbitrary (AdditionalItems schema) where
-    arbitrary = oneof [ AdditionalBool <$> arbitrary
-                      , AdditionalObject <$> arbitrary
-                      ]
 
 data AdditionalItemsInvalid err
     = AdditionalItemsBoolInvalid   (NonEmpty (JP.Index, Value))

@@ -13,7 +13,8 @@ import           Data.Aeson (FromJSON(..), Value(..), decodeStrict)
 import qualified Data.Aeson as AE
 import qualified Data.HashMap.Strict as HM
 import           Data.Maybe (fromMaybe)
-import           Data.Profunctor (Profunctor(..))
+-- import           Data.Profunctor (Profunctor(..))
+import           JSONSchema.Validator.Types
 
 import           JSONSchema.Draft4 (ValidatorFailure(..), metaSchemaBytes)
 import           JSONSchema.Fetch (SchemaWithURI(..), URISchemaMap(..))

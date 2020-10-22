@@ -83,11 +83,6 @@ instance FromJSON Required where
     parseJSON = withObject "Required" $ \o ->
         Required <$> o .: "required"
 
-instance Arbitrary Required where
-    arbitrary = do
-        x  <- arbitraryText -- Guarantee at least one element.
-        xs <- (fmap.fmap) T.pack arbitrary
-        pure . Required . Set.fromList $ x:xs
 
 data RequiredInvalid
     = RequiredInvalid Required (Set Text) (HashMap Text Value)
@@ -131,10 +126,6 @@ instance ToJSON schema => ToJSON (Dependency schema) where
     toJSON (SchemaDependency schema) = toJSON schema
     toJSON (PropertyDependency ts)   = toJSON ts
 
-instance Arbitrary schema => Arbitrary (Dependency schema) where
-    arbitrary = oneof [ SchemaDependency <$> arbitrary
-                      , PropertyDependency <$> arbitrarySetOfText
-                      ]
 
 data DependencyMemberInvalid err
     = SchemaDepInvalid   (NonEmpty err)

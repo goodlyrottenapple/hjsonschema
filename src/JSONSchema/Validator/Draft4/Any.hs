@@ -219,18 +219,18 @@ instance FromJSON EnumValidator where
     parseJSON = withObject "EnumValidator" $ \o ->
         EnumValidator <$> o .: "enum"
 
-instance Arbitrary EnumValidator where
-    arbitrary = do
-        xs <- (fmap.fmap) UT._unArbitraryValue arbitrary
-        case NE.nonEmpty (toUnique xs) of
-            Nothing -> EnumValidator . pure . UT._unArbitraryValue <$> arbitrary
-            Just ne -> pure (EnumValidator ne)
-      where
-        toUnique :: [Value] -> [Value]
-        toUnique = fmap UT._unOrdValue
-                 . Set.toList
-                 . Set.fromList
-                 . fmap UT.OrdValue
+-- instance Arbitrary EnumValidator where
+--     arbitrary = do
+--         xs <- (fmap.fmap) UT._unArbitraryValue arbitrary
+--         case NE.nonEmpty (toUnique xs) of
+--             Nothing -> EnumValidator . pure . UT._unArbitraryValue <$> arbitrary
+--             Just ne -> pure (EnumValidator ne)
+--       where
+--         toUnique :: [Value] -> [Value]
+--         toUnique = fmap UT._unOrdValue
+--                  . Set.toList
+--                  . Set.fromList
+--                  . fmap UT.OrdValue
 
 data EnumInvalid
     = EnumInvalid EnumValidator Value
@@ -285,10 +285,6 @@ instance ToJSON TypeValidator where
     toJSON (TypeValidatorString t) = toJSON t
     toJSON (TypeValidatorArray ts) = toJSON ts
 
-instance Arbitrary TypeValidator where
-    arbitrary = oneof [ TypeValidatorString <$> arbitrary
-                      , TypeValidatorArray <$> arbitrary
-                      ]
 
 data SchemaType
     = SchemaObject
@@ -310,8 +306,6 @@ instance ToJSON SchemaType where
                  defaultOptions
                  { constructorTagModifier = fmap toLower . drop 6 }
 
-instance Arbitrary SchemaType where
-    arbitrary = arbitraryBoundedEnum
 
 data TypeValidatorInvalid
     = TypeValidatorInvalid TypeValidator Value

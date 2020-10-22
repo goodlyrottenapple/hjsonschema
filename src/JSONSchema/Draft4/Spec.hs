@@ -3,7 +3,8 @@ module JSONSchema.Draft4.Spec where
 import           Import
 
 import           Data.Maybe (fromMaybe)
-import           Data.Profunctor (Profunctor(..))
+-- import           Data.Profunctor (Profunctor(..))
+import           JSONSchema.Validator.Types
 
 import           JSONSchema.Draft4.Failure
 import           JSONSchema.Draft4.Schema (Schema(..), emptySchema)
